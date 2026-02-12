@@ -8,6 +8,7 @@ interface IUser extends Document {
   username: string;
   email: string;
   passwordHash: string;
+  role: 'user' | 'creator' | 'admin' | 'developer';
   profile: {
     firstName: string;
     lastName: string;
@@ -36,6 +37,7 @@ const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
+  role: { type: String, enum: ['user', 'creator', 'admin', 'developer'], default: 'user' },
   profile: {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -53,7 +55,7 @@ const UserSchema = new Schema<IUser>({
   },
   preferences: {
     notifications: { type: Boolean, default: true },
-    locationSharing: { type: Boolean, false },
+    locationSharing: { type: Boolean, default: false },
     preferredCategories: [{ type: String }]
   }
 }, {
@@ -361,6 +363,39 @@ interface IChatMessage extends Document {
   timestamp: Date;
 }
 
+// Conversation Model - For managing chat threads
+interface IConversation extends Document {
+  participants: [{
+    userId: Schema.Types.ObjectId;
+    username: string;
+    avatar?: string;
+    role: 'buyer' | 'seller' | 'member';
+  }];
+  type: 'direct' | 'groupbuy' | 'marketplace';
+  title?: string;
+  relatedItem?: {
+    itemId: Schema.Types.ObjectId;
+    title: string;
+    price: number;
+    imageUrl: string;
+    status: 'available' | 'sold' | 'reserved';
+  };
+  groupBuyInfo?: {
+    item: string;
+    spotsLeft: number;
+    totalSpots: number;
+    endTime: Date;
+  };
+  lastMessage: {
+    text: string;
+    senderId: Schema.Types.ObjectId;
+    timestamp: Date;
+  };
+  unreadCount: Map<string, number>; // userId -> count
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 const ChatMessageSchema = new Schema<IChatMessage>({
   chatId: { type: String, required: true, index: true },
   senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -394,6 +429,38 @@ const ChatMessageSchema = new Schema<IChatMessage>({
   timestamps: true
 });
 
+const ConversationSchema = new Schema<IConversation>({
+  participants: [{
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    username: { type: String, required: true },
+    avatar: { type: String },
+    role: { type: String, enum: ['buyer', 'seller', 'member'], default: 'member' }
+  }],
+  type: { type: String, enum: ['direct', 'groupbuy', 'marketplace'], required: true },
+  title: { type: String },
+  relatedItem: {
+    itemId: { type: Schema.Types.ObjectId, ref: 'MarketplaceItem' },
+    title: { type: String },
+    price: { type: Number },
+    imageUrl: { type: String },
+    status: { type: String, enum: ['available', 'sold', 'reserved'], default: 'available' }
+  },
+  groupBuyInfo: {
+    item: { type: String },
+    spotsLeft: { type: Number },
+    totalSpots: { type: Number },
+    endTime: { type: Date }
+  },
+  lastMessage: {
+    text: { type: String },
+    senderId: { type: Schema.Types.ObjectId, ref: 'User' },
+    timestamp: { type: Date, default: Date.now }
+  },
+  unreadCount: { type: Map, of: Number, default: {} }
+}, {
+  timestamps: true
+});
+
 // Create indexes for performance
 MarketplaceItemSchema.index({ 'location.coordinates': '2dsphere' });
 MarketplaceItemSchema.index({ category: 1, status: 1 });
@@ -407,8 +474,12 @@ HiveActivitySchema.index({ category: 1, visibility: 1 });
 ChatMessageSchema.index({ chatId: 1, timestamp: 1 });
 ChatMessageSchema.index({ senderId: 1 });
 
+ConversationSchema.index({ 'participants.userId': 1 });
+ConversationSchema.index({ updatedAt: -1 });
+
 export const User = model<IUser>('User', UserSchema);
 export const MarketplaceItem = model<IMarketplaceItem>('MarketplaceItem', MarketplaceItemSchema);
 export const Transaction = model<ITransaction>('Transaction', TransactionSchema);
 export const HiveActivity = model<IHiveActivity>('HiveActivity', HiveActivitySchema);
 export const ChatMessage = model<IChatMessage>('ChatMessage', ChatMessageSchema);
+export const Conversation = model<IConversation>('Conversation', ConversationSchema);

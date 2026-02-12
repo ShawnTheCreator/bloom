@@ -13,7 +13,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Lock, User, Eye, EyeOff, Flower2, Check } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, BorderRadius } from '../theme';
 
 interface SignupScreenProps {
@@ -59,7 +59,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             {/* Header with floral decoration */}
             <View style={styles.header}>
               <View style={styles.flowerIcon}>
-                <Flower2 size={48} color={Colors.deepPink} />
+                <Ionicons name="flower" size={24} color={Colors.white} />
               </View>
               <Text style={styles.welcomeText}>Create Account</Text>
               <Text style={styles.subtitle}>Start your bloom journey today</Text>
@@ -69,7 +69,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             <View style={styles.formContainer}>
               {/* Name Input */}
               <View style={styles.inputContainer}>
-                <User size={20} color={Colors.lightGray} style={styles.inputIcon} />
+                <Ionicons name="person" size={20} color={Colors.lightGray} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Full name"
@@ -82,7 +82,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
               {/* Email Input */}
               <View style={styles.inputContainer}>
-                <Mail size={20} color={Colors.lightGray} style={styles.inputIcon} />
+                <Ionicons name="mail" size={20} color={Colors.lightGray} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Email address"
@@ -96,7 +96,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
               {/* Password Input */}
               <View style={styles.inputContainer}>
-                <Lock size={20} color={Colors.lightGray} style={styles.inputIcon} />
+                <Ionicons name="lock-closed" size={20} color={Colors.lightGray} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
@@ -111,16 +111,16 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                   style={styles.eyeIcon}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} color={Colors.lightGray} />
+                    <Ionicons name="eye-off" size={20} color={Colors.lightGray} />
                   ) : (
-                    <Eye size={20} color={Colors.lightGray} />
+                    <Ionicons name="eye" size={20} color={Colors.lightGray} />
                   )}
                 </TouchableOpacity>
               </View>
 
               {/* Confirm Password Input */}
               <View style={styles.inputContainer}>
-                <Lock size={20} color={Colors.lightGray} style={styles.inputIcon} />
+                <Ionicons name="lock-closed" size={20} color={Colors.lightGray} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Confirm password"
@@ -135,9 +135,9 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                   style={styles.eyeIcon}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff size={20} color={Colors.lightGray} />
+                    <Ionicons name="eye-off" size={20} color={Colors.lightGray} />
                   ) : (
-                    <Eye size={20} color={Colors.lightGray} />
+                    <Ionicons name="eye" size={20} color={Colors.lightGray} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -148,7 +148,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 onPress={() => setAgreedToTerms(!agreedToTerms)}
               >
                 <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-                  {agreedToTerms && <Check size={14} color={Colors.white} />}
+                  {agreedToTerms && <Ionicons name="checkmark" size={16} color={Colors.white} />}
                 </View>
                 <Text style={styles.termsText}>
                   I agree to the{' '}

@@ -11,11 +11,11 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Camera, TrendingUp, DollarSign, Leaf, LucideIcon } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, BorderRadius, GlobalStyles } from '../theme';
 import { RingProgress } from '../components/BloomLogo';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { apiService, DEMO_USER_ID } from '../services/api';
+import { apiService } from '../services/api';
 import { Svg, Circle, Ellipse, Path } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
@@ -149,7 +149,7 @@ const HEADER_MIN_HEIGHT = 80;
 interface Stat {
   label: string;
   value: string;
-  icon: LucideIcon;
+  icon: string;
   change: string;
 }
 
@@ -164,13 +164,33 @@ const GreenhouseScreen: React.FC<GreenhouseScreenProps> = ({ navigation }) => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [userId, setUserId] = useState<string | null>(null);
+
   useEffect(() => {
-    fetchUserData();
+    fetchUserId();
   }, []);
 
-  const fetchUserData = async () => {
+  const fetchUserId = async () => {
     try {
-      const summary = await apiService.getUserSummary(DEMO_USER_ID);
+      const users = await apiService.getUsers();
+      if (users && users.length > 0) {
+        setUserId(users[0]._id);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserData();
+    }
+  }, [userId]);
+
+  const fetchUserData = async () => {
+    if (!userId) return;
+    try {
+      const summary = await apiService.getUserSummary(userId);
       setUserData(summary);
       setTransactions(summary.recentActivity || []);
     } catch (error: any) {
@@ -182,7 +202,7 @@ const GreenhouseScreen: React.FC<GreenhouseScreenProps> = ({ navigation }) => {
         try {
           await apiService.seedDemoData();
           // Retry fetching user data
-          const summary = await apiService.getUserSummary(DEMO_USER_ID);
+          const summary = await apiService.getUserSummary(userId);
           setUserData(summary);
           setTransactions(summary.recentActivity || []);
           return;
@@ -297,134 +317,9 @@ const GreenhouseScreen: React.FC<GreenhouseScreenProps> = ({ navigation }) => {
               <Text style={styles.ringAmount}>$2,847</Text>
               <Text style={styles.ringLabel}>Total Growth</Text>
             </View>
-          </View>
-
-          <View style={styles.statsContainer}>
-            {stats.map((stat, index) => (
-              <View key={index} style={styles.statCard}>
-                <stat.icon size={24} color={Colors.deepPink} />
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-                <Text style={styles.statChange}>{stat.change}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-            {transactions.length > 0 ? (
-              transactions.map((transaction, index) => (
-                <View key={index} style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <DollarSign size={20} color={Colors.deepPink} />
-                  </View>
-                  <View style={styles.activityInfo}>
-                    <Text style={styles.activityTitle}>{transaction.title}</Text>
-                    <Text style={styles.activityTime}>
-                      {new Date(transaction.date).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <Text style={styles.activityAmount}>
-                    {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount)}
-                  </Text>
-                </View>
-              ))
-            ) : (
-              [1, 2, 3].map((_, index) => (
-                <View key={index} style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <DollarSign size={20} color={Colors.deepPink} />
-                  </View>
-                  <View style={styles.activityInfo}>
-                    <Text style={styles.activityTitle}>Sold Kitchen Mixer</Text>
-                    <Text style={styles.activityTime}>2 hours ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>+$85</Text>
-                </View>
-              ))
-            )}
-          </View>
-
-          <View style={{ height: 100 }} />
-        </View>
-      </Animated.ScrollView>
-
-      {showScan && (
-        <View style={styles.scanOverlay}>
-          <View style={styles.scanFrame}>
-            <Camera size={48} color={Colors.deepPink} />
-            <Text style={styles.scanText}>Scanning for savings...</Text>
-          </View>
-        </View>
-      )}
-
-      <TouchableOpacity style={styles.fab} onPress={handleScan} activeOpacity={0.8}>
-        <Camera size={28} color={Colors.white} />
-        <Text style={styles.fabText}>Scan & Grow</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
-  );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.blushWhite,
-  },
-  backgroundElements: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: 'none',
-  },
-  header: {
-    backgroundColor: Colors.blushWhite,
-    paddingHorizontal: Spacing.lg,
-    justifyContent: 'flex-end',
-    paddingBottom: Spacing.md,
-  },
-  headerContent: {
-    position: 'absolute',
-    bottom: Spacing.md,
-    left: Spacing.lg,
-  },
-  headerSmall: {
-    position: 'absolute',
-    bottom: Spacing.md,
-    left: Spacing.lg,
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.deepPink,
-  },
-  greeting: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: Colors.charcoal,
-    letterSpacing: -0.5,
-    maxWidth: 300,
-  },
-  date: {
-    fontSize: 14,
-    color: Colors.softDark,
-    marginTop: Spacing.xs,
-  },
-  scrollContent: {
-    flex: 1,
-  },
-  scrollContentContainer: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-  },
-  content: {
-    paddingTop: Spacing.lg,
-  },
-  ringContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: Spacing.xl,
-  },
+// ...
   ringCenter: {
     position: 'absolute',
     alignItems: 'center',

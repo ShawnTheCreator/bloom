@@ -9,12 +9,14 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Lock, Eye, EyeOff, Flower2 } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, BorderRadius } from '../theme';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LoginScreenProps {
   navigation: any;
@@ -27,14 +29,42 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { setUserRole } = useAuth();
 
   const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      // For demo - simulate role-based login with seeded users
+      const roleMap: { [key: string]: string } = {
+        'shawn@bloom.com': 'admin',
+        'dev@bloom.com': 'developer',
+        'sarah.creator@bloom.com': 'creator',
+        'sarah@bloom.com': 'user',
+        'mike@bloom.com': 'user',
+        'emma@bloom.com': 'user',
+        'alex@bloom.com': 'user',
+      };
+
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 1500));
+      
+      // Set role based on email (in production, fetch from backend after validating password)
+      const role = roleMap[email.toLowerCase()] || 'user';
+      setUserRole(role);
+      
+      console.log(`Logged in as ${role}`);
       navigation.replace('Main');
-    }, 1500);
+    } catch (error) {
+      Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -55,7 +85,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             {/* Header with floral decoration */}
             <View style={styles.header}>
               <View style={styles.flowerIcon}>
-                <Flower2 size={48} color={Colors.deepPink} />
+                <Ionicons name="flower" size={24} color={Colors.white} />
               </View>
               <Text style={styles.welcomeText}>Welcome Back</Text>
               <Text style={styles.subtitle}>Sign in to continue your journey</Text>
@@ -65,7 +95,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <View style={styles.formContainer}>
               {/* Email Input */}
               <View style={styles.inputContainer}>
-                <Mail size={20} color={Colors.lightGray} style={styles.inputIcon} />
+                <Ionicons name="mail" size={20} color={Colors.lightGray} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Email address"
@@ -79,7 +109,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
               {/* Password Input */}
               <View style={styles.inputContainer}>
-                <Lock size={20} color={Colors.lightGray} style={styles.inputIcon} />
+                <Ionicons name="lock-closed" size={20} color={Colors.lightGray} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
@@ -94,9 +124,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   style={styles.eyeIcon}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} color={Colors.lightGray} />
+                    <Ionicons name="eye-off" size={20} color={Colors.lightGray} />
                   ) : (
-                    <Eye size={20} color={Colors.lightGray} />
+                    <Ionicons name="eye" size={20} color={Colors.lightGray} />
                   )}
                 </TouchableOpacity>
               </View>

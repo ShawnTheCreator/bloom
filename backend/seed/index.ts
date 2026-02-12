@@ -109,6 +109,84 @@ const seedUsers = async () => {
         locationSharing: true,
         preferredCategories: ['furniture', 'appliances', 'tools']
       }
+    },
+    {
+      username: 'admin_shawn',
+      email: 'shawn@bloom.com',
+      passwordHash: await bcrypt.hash('P@ssword123', 10),
+      role: 'admin',
+      profile: {
+        firstName: 'Shawn',
+        lastName: 'Admin',
+        avatar: 'https://randomuser.me/api/portraits/men/85.jpg',
+        bio: 'Platform administrator and community manager',
+        location: 'Johannesburg, SA',
+        joinDate: new Date('2023-12-01')
+      },
+      stats: {
+        totalSaved: 0,
+        itemsSold: 0,
+        itemsBought: 0,
+        co2SavedKg: 0,
+        reputation: 1000
+      },
+      preferences: {
+        notifications: true,
+        locationSharing: true,
+        preferredCategories: []
+      }
+    },
+    {
+      username: 'dev_team',
+      email: 'dev@bloom.com',
+      passwordHash: await bcrypt.hash('dev123', 10),
+      role: 'developer',
+      profile: {
+        firstName: 'Dev',
+        lastName: 'Team',
+        avatar: 'https://randomuser.me/api/portraits/men/41.jpg',
+        bio: 'Full-stack developer maintaining the Bloom platform',
+        location: 'Remote',
+        joinDate: new Date('2023-11-15')
+      },
+      stats: {
+        totalSaved: 0,
+        itemsSold: 0,
+        itemsBought: 0,
+        co2SavedKg: 0,
+        reputation: 1000
+      },
+      preferences: {
+        notifications: true,
+        locationSharing: false,
+        preferredCategories: []
+      }
+    },
+    {
+      username: 'sarah_creator',
+      email: 'sarah.creator@bloom.com',
+      passwordHash: await bcrypt.hash('creator123', 10),
+      role: 'creator',
+      profile: {
+        firstName: 'Sarah',
+        lastName: 'Creator',
+        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+        bio: 'Content creator and sustainability influencer',
+        location: 'Cape Town, SA',
+        joinDate: new Date('2024-01-15')
+      },
+      stats: {
+        totalSaved: 2847,
+        itemsSold: 43,
+        itemsBought: 12,
+        co2SavedKg: 156,
+        reputation: 487
+      },
+      preferences: {
+        notifications: true,
+        locationSharing: true,
+        preferredCategories: ['electronics', 'furniture', 'clothing']
+      }
     }
   ];
 
@@ -121,10 +199,10 @@ const seedMarketplaceItems = async () => {
   console.log('Seeding marketplace items...');
   
   const users = await User.find({});
-  const sarah = users.find(u => u.username === 'sarah_bloom');
-  const mike = users.find(u => u.username === 'mike_eco');
-  const emma = users.find(u => u.username === 'emma_green');
-  const alex = users.find(u => u.username === 'alex_repair');
+  const sarah = users.find((u: { username: string; }) => u.username === 'sarah_bloom');
+  const mike = users.find((u: { username: string; }) => u.username === 'mike_eco');
+  const emma = users.find((u: { username: string; }) => u.username === 'emma_green');
+  const alex = users.find((u: { username: string; }) => u.username === 'alex_repair');
 
   const items = [
     {
@@ -135,8 +213,8 @@ const seedMarketplaceItems = async () => {
       price: 120,
       originalPrice: 299,
       images: [
-        'https://bloom-images.s3.amazonaws.com/items/mixer1.jpg',
-        'https://bloom-images.s3.amazonaws.com/items/mixer2.jpg'
+        'https://images.unsplash.com/photo-1556910103-1c02745a30bf?w=400',
+        'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400'
       ],
       seller: {
         userId: sarah!._id,
@@ -147,7 +225,7 @@ const seedMarketplaceItems = async () => {
       },
       location: {
         type: 'Point',
-        coordinates: [-122.6765, 45.5231], // Portland
+        coordinates: [-122.6765, 45.5231],
         address: '123 Main St, Portland, OR 97201'
       },
       groupBuy: {
@@ -155,7 +233,7 @@ const seedMarketplaceItems = async () => {
         maxParticipants: 5,
         currentParticipants: 2,
         discountPercent: 20,
-        endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         participants: [
           { userId: emma!._id, username: emma!.username, joinedAt: new Date() },
           { userId: mike!._id, username: mike!.username, joinedAt: new Date(Date.now() - 2 * 60 * 60 * 1000) }
@@ -178,8 +256,8 @@ const seedMarketplaceItems = async () => {
       price: 180,
       originalPrice: 450,
       images: [
-        'https://bloom-images.s3.amazonaws.com/items/chair1.jpg',
-        'https://bloom-images.s3.amazonaws.com/items/chair2.jpg'
+        'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=400',
+        'https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=400'
       ],
       seller: {
         userId: mike!._id,
@@ -190,7 +268,7 @@ const seedMarketplaceItems = async () => {
       },
       location: {
         type: 'Point',
-        coordinates: [-122.3321, 47.6062], // Seattle
+        coordinates: [-122.3321, 47.6062],
         address: '456 Tech Ave, Seattle, WA 98101'
       },
       sustainability: {
@@ -210,7 +288,7 @@ const seedMarketplaceItems = async () => {
       price: 35,
       originalPrice: 120,
       images: [
-        'https://bloom-images.s3.amazonaws.com/items/books1.jpg'
+        'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400'
       ],
       seller: {
         userId: emma!._id,
@@ -221,7 +299,7 @@ const seedMarketplaceItems = async () => {
       },
       location: {
         type: 'Point',
-        coordinates: [-122.4194, 37.7749], // San Francisco
+        coordinates: [-122.4194, 37.7749],
         address: '789 Family Ln, San Francisco, CA 94102'
       },
       sustainability: {
@@ -240,8 +318,8 @@ const seedMarketplaceItems = async () => {
       condition: 'like-new',
       price: 220,
       images: [
-        'https://bloom-images.s3.amazonaws.com/items/table1.jpg',
-        'https://bloom-images.s3.amazonaws.com/items/table2.jpg'
+        'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?w=400',
+        'https://images.unsplash.com/photo-1499933374294-4584851497cc?w=400'
       ],
       seller: {
         userId: alex!._id,
@@ -252,7 +330,7 @@ const seedMarketplaceItems = async () => {
       },
       location: {
         type: 'Point',
-        coordinates: [-97.7431, 30.2672], // Austin
+        coordinates: [-97.7431, 30.2672],
         address: '321 Craft St, Austin, TX 78701'
       },
       sustainability: {
@@ -272,7 +350,7 @@ const seedMarketplaceItems = async () => {
       price: 25,
       originalPrice: 60,
       images: [
-        'https://bloom-images.s3.amazonaws.com/items/battery1.jpg'
+        'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400'
       ],
       seller: {
         userId: mike!._id,
@@ -283,7 +361,7 @@ const seedMarketplaceItems = async () => {
       },
       location: {
         type: 'Point',
-        coordinates: [-122.3321, 47.6062], // Seattle
+        coordinates: [-122.3321, 47.6062],
         address: '456 Tech Ave, Seattle, WA 98101'
       },
       groupBuy: {
@@ -291,7 +369,7 @@ const seedMarketplaceItems = async () => {
         maxParticipants: 8,
         currentParticipants: 3,
         discountPercent: 25,
-        endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+        endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
         participants: [
           { userId: sarah!._id, username: sarah!.username, joinedAt: new Date() },
           { userId: alex!._id, username: alex!.username, joinedAt: new Date(Date.now() - 4 * 60 * 60 * 1000) },
@@ -306,6 +384,257 @@ const seedMarketplaceItems = async () => {
       status: 'active',
       views: 445,
       likes: 31
+    },
+    // Additional diverse products
+    {
+      title: 'Organic Baby Clothes Bundle (0-12 months)',
+      description: 'Gently used organic cotton baby clothes. 20+ pieces including onesies, sleepers, and outfits. Perfect for new parents!',
+      category: 'clothing',
+      condition: 'good',
+      price: 45,
+      originalPrice: 180,
+      images: [
+        'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400'
+      ],
+      seller: {
+        userId: emma!._id,
+        username: emma!.username,
+        avatar: emma!.profile.avatar,
+        rating: 4.8,
+        location: emma!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-122.4194, 37.7749],
+        address: '789 Family Ln, San Francisco, CA 94102'
+      },
+      groupBuy: {
+        enabled: true,
+        maxParticipants: 4,
+        currentParticipants: 1,
+        discountPercent: 15,
+        endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        participants: [
+          { userId: sarah!._id, username: sarah!.username, joinedAt: new Date() }
+        ]
+      },
+      sustainability: {
+        co2SavedKg: 8.5,
+        wasteDivertedKg: 4.2,
+        localProduction: true
+      },
+      status: 'active',
+      views: 178,
+      likes: 22
+    },
+    {
+      title: 'Vintage Record Player with Speakers',
+      description: 'Classic 1970s turntable in excellent working condition. Includes original speakers. Great sound quality!',
+      category: 'electronics',
+      condition: 'like-new',
+      price: 150,
+      originalPrice: 350,
+      images: [
+        'https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400'
+      ],
+      seller: {
+        userId: alex!._id,
+        username: alex!.username,
+        avatar: alex!.profile.avatar,
+        rating: 4.9,
+        location: alex!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-97.7431, 30.2672],
+        address: '321 Craft St, Austin, TX 78701'
+      },
+      sustainability: {
+        co2SavedKg: 15.3,
+        wasteDivertedKg: 12.1,
+        localProduction: false
+      },
+      status: 'active',
+      views: 267,
+      likes: 19
+    },
+    {
+      title: 'Handmade Ceramic Pottery Set - Group Buy',
+      description: 'Beautiful handcrafted ceramic bowls and plates. Local artisan made. Join group buy for 30% off when we reach 6 buyers!',
+      category: 'home',
+      condition: 'new',
+      price: 85,
+      originalPrice: 200,
+      images: [
+        'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400'
+      ],
+      seller: {
+        userId: sarah!._id,
+        username: sarah!.username,
+        avatar: sarah!.profile.avatar,
+        rating: 5.0,
+        location: sarah!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-122.6765, 45.5231],
+        address: '123 Main St, Portland, OR 97201'
+      },
+      groupBuy: {
+        enabled: true,
+        maxParticipants: 6,
+        currentParticipants: 2,
+        discountPercent: 30,
+        endTime: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+        participants: [
+          { userId: mike!._id, username: mike!.username, joinedAt: new Date() },
+          { userId: emma!._id, username: emma!.username, joinedAt: new Date(Date.now() - 12 * 60 * 60 * 1000) }
+        ]
+      },
+      sustainability: {
+        co2SavedKg: 6.8,
+        wasteDivertedKg: 3.5,
+        localProduction: true
+      },
+      status: 'active',
+      views: 198,
+      likes: 34
+    },
+    {
+      title: 'Mountain Bike - Trek 4500',
+      description: 'Well-maintained mountain bike, perfect for trails and commuting. Recently serviced with new brakes and tires.',
+      category: 'sports',
+      condition: 'good',
+      price: 280,
+      originalPrice: 650,
+      images: [
+        'https://images.unsplash.com/photo-1485965120184-e224f743ef25?w=400'
+      ],
+      seller: {
+        userId: mike!._id,
+        username: mike!.username,
+        avatar: mike!.profile.avatar,
+        rating: 4.7,
+        location: mike!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-122.3321, 47.6062],
+        address: '456 Tech Ave, Seattle, WA 98101'
+      },
+      sustainability: {
+        co2SavedKg: 45.2,
+        wasteDivertedKg: 18.5,
+        localProduction: false
+      },
+      status: 'active',
+      views: 324,
+      likes: 27
+    },
+    {
+      title: 'Leather Messenger Bag',
+      description: 'Genuine leather messenger bag, vintage style. Multiple compartments, fits laptop up to 15". Great condition.',
+      category: 'accessories',
+      condition: 'like-new',
+      price: 75,
+      originalPrice: 220,
+      images: [
+        'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400'
+      ],
+      seller: {
+        userId: alex!._id,
+        username: alex!.username,
+        avatar: alex!.profile.avatar,
+        rating: 4.8,
+        location: alex!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-97.7431, 30.2672],
+        address: '321 Craft St, Austin, TX 78701'
+      },
+      sustainability: {
+        co2SavedKg: 9.5,
+        wasteDivertedKg: 2.8,
+        localProduction: false
+      },
+      status: 'active',
+      views: 145,
+      likes: 15
+    },
+    {
+      title: 'Board Games Collection - Group Buy',
+      description: '10 classic board games including Catan, Ticket to Ride, and Carcassonne. Group buy - split cost with friends!',
+      category: 'games',
+      condition: 'good',
+      price: 60,
+      originalPrice: 300,
+      images: [
+        'https://images.unsplash.com/photo-1610890716171-6b1c98e9f008?w=400'
+      ],
+      seller: {
+        userId: emma!._id,
+        username: emma!.username,
+        avatar: emma!.profile.avatar,
+        rating: 4.9,
+        location: emma!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-122.4194, 37.7749],
+        address: '789 Family Ln, San Francisco, CA 94102'
+      },
+      groupBuy: {
+        enabled: true,
+        maxParticipants: 5,
+        currentParticipants: 3,
+        discountPercent: 40,
+        endTime: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+        participants: [
+          { userId: sarah!._id, username: sarah!.username, joinedAt: new Date() },
+          { userId: mike!._id, username: mike!.username, joinedAt: new Date(Date.now() - 8 * 60 * 60 * 1000) },
+          { userId: alex!._id, username: alex!.username, joinedAt: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+        ]
+      },
+      sustainability: {
+        co2SavedKg: 4.2,
+        wasteDivertedKg: 1.5,
+        localProduction: false
+      },
+      status: 'active',
+      views: 256,
+      likes: 41
+    },
+    {
+      title: 'Indoor Plant Collection (5 Plants)',
+      description: 'Healthy indoor plants including pothos, snake plant, and fiddle leaf fig. Comes with decorative pots.',
+      category: 'home',
+      condition: 'like-new',
+      price: 55,
+      originalPrice: 150,
+      images: [
+        'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400'
+      ],
+      seller: {
+        userId: sarah!._id,
+        username: sarah!.username,
+        avatar: sarah!.profile.avatar,
+        rating: 4.8,
+        location: sarah!.profile.location
+      },
+      location: {
+        type: 'Point',
+        coordinates: [-122.6765, 45.5231],
+        address: '123 Main St, Portland, OR 97201'
+      },
+      sustainability: {
+        co2SavedKg: 12.0,
+        wasteDivertedKg: 5.0,
+        localProduction: true
+      },
+      status: 'active',
+      views: 189,
+      likes: 28
     }
   ];
 
@@ -548,6 +877,7 @@ const seedChatMessages = async () => {
   
   const users = await User.find({});
   const items = await MarketplaceItem.find({});
+  const activities = await HiveActivity.find({});
   
   const messages = [
     {

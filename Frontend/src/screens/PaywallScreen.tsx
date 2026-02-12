@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Check, X, Sparkles, Zap, Crown } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Colors, Spacing, BorderRadius } from '../theme';
 import { BloomLogo } from '../components/BloomLogo';
@@ -114,7 +114,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({ onClose, onSubscribe }) =
       <StatusBar style="light" />
       
       <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-        <X size={24} color={Colors.lightGray} />
+        <Ionicons name="close" size={24} color={Colors.charcoal} />
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -131,7 +131,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({ onClose, onSubscribe }) =
           {features.map((feature, index) => (
             <View key={index} style={styles.featureRow}>
               <View style={styles.checkCircle}>
-                <Check size={16} color={Colors.white} strokeWidth={3} />
+                <Ionicons name="checkmark" size={16} color={Colors.white} strokeWidth={3} />
               </View>
               <Text style={styles.featureText}>{feature}</Text>
             </View>
@@ -151,7 +151,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({ onClose, onSubscribe }) =
             >
               {plan.popular && (
                 <View style={styles.popularBadge}>
-                  <Crown size={12} color={Colors.white} />
+                  <Ionicons name="ribbon" size={12} color={Colors.white} />
                   <Text style={styles.popularText}>POPULAR</Text>
                 </View>
               )}
@@ -181,7 +181,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({ onClose, onSubscribe }) =
         </View>
 
         <View style={styles.guaranteeContainer}>
-          <Sparkles size={16} color={Colors.powerPink} />
+          <Ionicons name="shield" size={16} color={Colors.powerPink} />
           <Text style={styles.guaranteeText}>
             7-day free trial • Cancel anytime
           </Text>
@@ -197,7 +197,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({ onClose, onSubscribe }) =
             onPress={handleSubscribe}
             activeOpacity={0.9}
           >
-            <Zap size={20} color={Colors.white} fill={Colors.white} />
+            <Ionicons name="flash" size={20} color={Colors.white} />
             <Text style={styles.ctaText}>Start Free Trial</Text>
           </TouchableOpacity>
         </Animated.View>

@@ -1,9 +1,6 @@
 const LOCAL_URL = 'http://localhost:5000/api';
 const LIVE_URL = 'https://bloom-k1gb.onrender.com/api';
 
-// Demo user ID for testing - matches seeded user
-export const DEMO_USER_ID = '65d1234567890abcdef12345';
-
 let API_BASE_URL = LIVE_URL; // Default to live
 
 // Try local first, fallback to live
@@ -47,6 +44,11 @@ class ApiService {
     }
   }
 
+  // Get all users
+  async getUsers() {
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/users`);
+  }
+
   // Users
   async getUser(userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/users/${userId}`);
@@ -72,20 +74,44 @@ class ApiService {
   // Marketplace
   async getMarketplaceItems(category?: string) {
     const url = category && category !== 'All' 
-      ? `${API_BASE_URL}/marketplace?category=${category}`
-      : `${API_BASE_URL}/marketplace`;
+      ? `${API_BASE_URL}/marketplace/items?category=${category}`
+      : `${API_BASE_URL}/marketplace/items`;
     return this.fetchWithErrorHandling(url);
   }
 
   async getItem(itemId: string) {
-    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/${itemId}`);
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/items/${itemId}`);
   }
 
-  async buyItem(itemId: string, buyerId: string) {
-    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/${itemId}/buy`, {
+  async createItem(itemData: any) {
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buyerId),
+      body: JSON.stringify(itemData),
+    });
+  }
+
+  async joinGroupBuy(itemId: string, userId: string, username: string) {
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/items/${itemId}/join`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, username }),
+    });
+  }
+
+  async leaveGroupBuy(itemId: string, userId: string) {
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/items/${itemId}/leave`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  async likeItem(itemId: string, userId: string) {
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/items/${itemId}/like`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
     });
   }
 

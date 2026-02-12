@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Users, MapPin, ShoppingBag, Truck, ArrowRight, Zap, LucideIcon } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, BorderRadius } from '../theme';
 import { apiService } from '../services/api';
 
