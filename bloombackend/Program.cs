@@ -2,6 +2,7 @@ using DotNetEnv;
 using bloombackend.Data;
 using bloombackend.Services;
 using bloombackend.Settings;
+using bloombackend.Models;
 
 // Load .env file for local development
 Env.Load();
