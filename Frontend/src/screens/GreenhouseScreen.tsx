@@ -15,7 +15,7 @@ import { Camera, TrendingUp, DollarSign, Leaf, LucideIcon } from 'lucide-react-n
 import { Colors, Spacing, BorderRadius, GlobalStyles } from '../theme';
 import { RingProgress } from '../components/BloomLogo';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { apiService } from '../services/api';
+import { apiService, DEMO_USER_ID } from '../services/api';
 import { Svg, Circle, Ellipse, Path } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
@@ -170,11 +170,21 @@ const GreenhouseScreen: React.FC<GreenhouseScreenProps> = ({ navigation }) => {
 
   const fetchUserData = async () => {
     try {
-      const summary = await apiService.getUserSummary(1);
+      const summary = await apiService.getUserSummary(DEMO_USER_ID);
       setUserData(summary);
       setTransactions(summary.recentActivity || []);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
+      // Use fallback data if API fails
+      setUserData({
+        totalSaved: 2847,
+        itemsSold: 43,
+        itemsBought: 12,
+        co2SavedKg: 156,
+        reputation: 85,
+        isPremium: false,
+        recentActivity: []
+      });
     } finally {
       setLoading(false);
     }

@@ -1,16 +1,24 @@
 const LOCAL_URL = 'http://localhost:5000/api';
 const LIVE_URL = 'https://bloom-k1gb.onrender.com/api';
 
+// Demo user ID for testing - matches seeded user
+export const DEMO_USER_ID = '65d1234567890abcdef12345';
+
 let API_BASE_URL = LIVE_URL; // Default to live
 
 // Try local first, fallback to live
 async function checkAndSetActiveEndpoint(): Promise<void> {
   try {
-    // Quick ping to local
+    // Quick ping to local with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1000);
+    
     const response = await fetch(`${LOCAL_URL.replace('/api', '')}/health`, { 
       method: 'HEAD',
-      signal: AbortSignal.timeout(1000) // 1 second timeout
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+    
     if (response.ok) {
       API_BASE_URL = LOCAL_URL;
       console.log('🔗 Using LOCAL backend:', LOCAL_URL);
@@ -40,15 +48,15 @@ class ApiService {
   }
 
   // Users
-  async getUser(userId: number) {
+  async getUser(userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/users/${userId}`);
   }
 
-  async getUserStats(userId: number) {
+  async getUserStats(userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/users/${userId}/stats`);
   }
 
-  async subscribeUser(userId: number) {
+  async subscribeUser(userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/users/${userId}/subscribe`, {
       method: 'POST',
     });
@@ -62,11 +70,11 @@ class ApiService {
     return this.fetchWithErrorHandling(url);
   }
 
-  async getItem(itemId: number) {
+  async getItem(itemId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/${itemId}`);
   }
 
-  async buyItem(itemId: number, buyerId: number) {
+  async buyItem(itemId: string, buyerId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/marketplace/${itemId}/buy`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -83,7 +91,7 @@ class ApiService {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/hive`);
   }
 
-  async joinActivity(activityId: number, userId: number) {
+  async joinActivity(activityId: string, userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/hive/${activityId}/join`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -96,11 +104,11 @@ class ApiService {
   }
 
   // Transactions
-  async getUserTransactions(userId: number) {
+  async getUserTransactions(userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/transactions/user/${userId}`);
   }
 
-  async getUserSummary(userId: number) {
+  async getUserSummary(userId: string) {
     return this.fetchWithErrorHandling(`${API_BASE_URL}/transactions/user/${userId}/summary`);
   }
 }
