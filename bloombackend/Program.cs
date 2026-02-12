@@ -75,13 +75,18 @@ app.MapPost("/api/seed", async (MongoDbService mongo) =>
         Id = demoUserId,
         Username = "sarah_bloom",
         Email = "sarah@bloom.com",
+        PasswordHash = "hashed_password",
         Profile = new UserProfile
         {
             FirstName = "Sarah",
             LastName = "Johnson",
             Avatar = "https://bloom-images.s3.amazonaws.com/avatars/sarah.jpg",
-            Bio = "Passionate about sustainable living",
-            Location = "Portland, OR"
+            Bio = "Passionate about sustainable living"
+        },
+        Location = new UserLocation
+        {
+            Address = "Portland, OR",
+            Coordinates = new double[] { -122.6750, 45.5051 }
         },
         Stats = new UserStats
         {
@@ -105,8 +110,8 @@ app.MapPost("/api/seed", async (MongoDbService mongo) =>
     {
         UserId = demoUserId,
         Type = "sale",
+        Title = "Sold Kitchen Mixer",
         Amount = 85,
-        Description = "Sold Kitchen Mixer",
         Date = DateTime.UtcNow.AddHours(-2),
         Status = "completed"
     };
