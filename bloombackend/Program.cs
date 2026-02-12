@@ -8,18 +8,20 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MongoDB Settings
-builder.Services.Configure<MongoDbSettings>(options =>
+// Create MongoDB Settings directly
+var mongoSettings = new MongoDbSettings
 {
-    // Priority: Environment Variable > .env file > appsettings.json > localhost fallback
-    options.ConnectionString = Environment.GetEnvironmentVariable("MONGODB_URI") 
+    ConnectionString = Environment.GetEnvironmentVariable("MONGODB_URI") 
         ?? builder.Configuration.GetConnectionString("MongoDb")
-        ?? "mongodb://localhost:27017/Bloom";
+        ?? "mongodb://localhost:27017/Bloom",
     
-    options.DatabaseName = Environment.GetEnvironmentVariable("MONGODB_DB_NAME")
+    DatabaseName = Environment.GetEnvironmentVariable("MONGODB_DB_NAME")
         ?? builder.Configuration.GetValue<string>("MongoDb:DatabaseName") 
-        ?? "Bloom";
-});
+        ?? "Bloom"
+};
+
+// Register as singleton
+builder.Services.AddSingleton(mongoSettings);
 
 // Add MongoDB Context and Service
 builder.Services.AddSingleton<MongoDbContext>();
