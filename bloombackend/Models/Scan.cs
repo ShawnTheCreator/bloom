@@ -17,7 +17,7 @@ namespace bloombackend.Models
         
         public DetectedItem DetectedItem { get; set; } = new();
         public EstimatedValue EstimatedValue { get; set; } = new();
-        public SustainabilityImpact Sustainability { get; set; } = new();
+        public ScanSustainabilityImpact Sustainability { get; set; } = new();
         
         public string Status { get; set; } = "draft"; // draft, listed, sold, discarded
         
@@ -50,7 +50,7 @@ namespace bloombackend.Models
         public string Currency { get; set; } = "USD";
     }
 
-    public class SustainabilityImpact
+    public class ScanSustainabilityImpact
     {
         public double Co2SavedKg { get; set; }
         public double WasteDivertedKg { get; set; }
