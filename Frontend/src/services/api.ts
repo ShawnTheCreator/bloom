@@ -62,6 +62,13 @@ class ApiService {
     });
   }
 
+  // Seed demo data
+  async seedDemoData() {
+    return this.fetchWithErrorHandling(`${API_BASE_URL}/seed`, {
+      method: 'POST',
+    });
+  }
+
   // Marketplace
   async getMarketplaceItems(category?: string) {
     const url = category && category !== 'All' 

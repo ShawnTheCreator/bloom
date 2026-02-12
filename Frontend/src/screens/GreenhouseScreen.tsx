@@ -173,8 +173,24 @@ const GreenhouseScreen: React.FC<GreenhouseScreenProps> = ({ navigation }) => {
       const summary = await apiService.getUserSummary(DEMO_USER_ID);
       setUserData(summary);
       setTransactions(summary.recentActivity || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch user data:', error);
+      
+      // If user not found (404), seed the demo data
+      if (error.message?.includes('404')) {
+        console.log('User not found, seeding demo data...');
+        try {
+          await apiService.seedDemoData();
+          // Retry fetching user data
+          const summary = await apiService.getUserSummary(DEMO_USER_ID);
+          setUserData(summary);
+          setTransactions(summary.recentActivity || []);
+          return;
+        } catch (seedError) {
+          console.error('Failed to seed demo data:', seedError);
+        }
+      }
+      
       // Use fallback data if API fails
       setUserData({
         totalSaved: 2847,

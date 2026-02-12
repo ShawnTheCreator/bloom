@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("bloombackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f00c2bdaa3694aec28a128158a5352ed79dfb0d4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05b252d3f80038df7768b4a84da2c237552bd100")]
 [assembly: System.Reflection.AssemblyProductAttribute("bloombackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("bloombackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
