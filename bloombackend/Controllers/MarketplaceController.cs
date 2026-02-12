@@ -8,64 +8,93 @@ namespace bloombackend.Controllers
     [Route("api/[controller]")]
     public class MarketplaceController : ControllerBase
     {
-        private readonly DataService _dataService;
+        private readonly MongoDbService _mongoDbService;
 
-        public MarketplaceController()
+        public MarketplaceController(MongoDbService mongoDbService)
         {
-            _dataService = new DataService();
+            _mongoDbService = mongoDbService;
         }
 
         [HttpGet]
-        public ActionResult<List<MarketplaceItem>> GetItems([FromQuery] string? category)
+        public async Task<ActionResult<List<MarketplaceItem>>> GetItems([FromQuery] string? category, [FromQuery] double? lng, [FromQuery] double? lat, [FromQuery] double? radius)
         {
-            var items = _dataService.GetItems();
+            List<MarketplaceItem> items;
             
-            if (!string.IsNullOrEmpty(category) && category != "All")
+            // If location provided, get nearby items
+            if (lng.HasValue && lat.HasValue)
             {
-                items = items.Where(i => i.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
+                var radiusMeters = radius ?? 10000;
+                items = await _mongoDbService.GetItemsNearLocationAsync(lng.Value, lat.Value, radiusMeters);
+            }
+            // If category provided, filter by category
+            else if (!string.IsNullOrEmpty(category) && category != "All")
+            {
+                items = await _mongoDbService.GetItemsByCategoryAsync(category);
+            }
+            else
+            {
+                items = await _mongoDbService.GetItemsAsync();
             }
 
             return Ok(items);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<MarketplaceItem> GetItem(int id)
+        public async Task<ActionResult<MarketplaceItem>> GetItem(string id)
         {
-            var item = _dataService.GetItemById(id);
+            var item = await _mongoDbService.GetItemByIdAsync(id);
             if (item == null)
                 return NotFound();
             return Ok(item);
         }
 
         [HttpPost]
-        public ActionResult<MarketplaceItem> CreateItem(MarketplaceItem item)
+        public async Task<ActionResult<MarketplaceItem>> CreateItem(MarketplaceItem item)
         {
-            item.Id = _dataService.GetItems().Max(i => i.Id) + 1;
-            item.ListedDate = DateTime.UtcNow;
-            _dataService.AddItem(item);
-            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item);
+            var created = await _mongoDbService.CreateItemAsync(item);
+            return CreatedAtAction(nameof(GetItem), new { id = created.Id }, created);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateItem(string id, MarketplaceItem item)
+        {
+            var existing = await _mongoDbService.GetItemByIdAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            await _mongoDbService.UpdateItemAsync(id, item);
+            return NoContent();
         }
 
         [HttpPost("{id}/buy")]
-        public ActionResult BuyItem(int id, [FromBody] int buyerId)
+        public async Task<ActionResult> BuyItem(string id, [FromBody] string buyerId)
         {
-            var item = _dataService.GetItemById(id);
+            var item = await _mongoDbService.GetItemByIdAsync(id);
             if (item == null)
                 return NotFound();
 
-            if (item.IsSold)
+            if (item.Status == "sold")
                 return BadRequest("Item already sold");
 
-            item.IsSold = true;
-            item.BuyerId = buyerId;
-            _dataService.UpdateItem(item);
+            item.Status = "sold";
+            await _mongoDbService.UpdateItemAsync(id, item);
 
-            // Update buyer stats
-            var buyer = _dataService.GetUserById(buyerId);
-            if (buyer != null)
+            // Create transaction record
+            await _mongoDbService.CreateTransactionAsync(new Transaction
             {
-                buyer.ItemsBought++;
-                _dataService.UpdateUser(buyer);
+                UserId = buyerId,
+                ItemId = id,
+                Title = $"Bought: {item.Title}",
+                Amount = -item.Price,
+                Type = "purchase"
+            });
+
+            // Update seller stats
+            var seller = await _mongoDbService.GetUserByIdAsync(item.Seller.UserId);
+            if (seller != null)
+            {
+                seller.Stats.ItemsSold++;
+                await _mongoDbService.UpdateUserAsync(seller.Id, seller);
             }
 
             return Ok();
@@ -74,7 +103,18 @@ namespace bloombackend.Controllers
         [HttpGet("categories")]
         public ActionResult<List<string>> GetCategories()
         {
-            return Ok(new List<string> { "All", "Furniture", "Decor", "Kitchen", "Electronics" });
+            return Ok(new List<string> { "All", "electronics", "furniture", "clothing", "appliances", "books", "toys", "sports", "other" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteItem(string id)
+        {
+            var item = await _mongoDbService.GetItemByIdAsync(id);
+            if (item == null)
+                return NotFound();
+
+            await _mongoDbService.DeleteItemAsync(id);
+            return NoContent();
         }
     }
 }

@@ -4,11 +4,15 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 
-// Connection URI - Using your Atlas connection string
-const uri = 'mongodb+srv://ShawnMain:ShawnChareka123@cluster0.yxk9mo6.mongodb.net/Bloom?retryWrites=true&w=majority&appName=Cluster0';
+// Connection URI - Load from environment variable
+const uri = process.env.MONGODB_URI;
 
-// Note: If using environment variable instead:
-// const uri = process.env.MONGODB_URI || 'mongodb+srv://ShawnMain:ShawnChareka123@cluster0.yxk9mo6.mongodb.net/Bloom?retryWrites=true&w=majority&appName=Cluster0';
+if (!uri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('   Please set it before running this script:');
+  console.error('   export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/Bloom?retryWrites=true&w=majority"');
+  process.exit(1);
+}
 
 async function seedDatabase() {
   const client = new MongoClient(uri);

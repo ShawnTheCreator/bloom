@@ -8,61 +8,62 @@ namespace bloombackend.Controllers
     [Route("api/[controller]")]
     public class TransactionsController : ControllerBase
     {
-        private readonly DataService _dataService;
+        private readonly MongoDbService _mongoDbService;
 
-        public TransactionsController()
+        public TransactionsController(MongoDbService mongoDbService)
         {
-            _dataService = new DataService();
+            _mongoDbService = mongoDbService;
         }
 
         [HttpGet("user/{userId}")]
-        public ActionResult<List<Transaction>> GetUserTransactions(int userId)
+        public async Task<ActionResult<List<Transaction>>> GetUserTransactions(string userId)
         {
-            return Ok(_dataService.GetTransactions(userId));
+            var transactions = await _mongoDbService.GetTransactionsByUserAsync(userId);
+            return Ok(transactions);
         }
 
         [HttpPost]
-        public ActionResult<Transaction> CreateTransaction(Transaction transaction)
+        public async Task<ActionResult<Transaction>> CreateTransaction(Transaction transaction)
         {
-            transaction.Id = _dataService.GetTransactions(transaction.UserId).Max(t => (int?)t.Id) + 1 ?? 1;
-            transaction.Date = DateTime.UtcNow;
-            _dataService.AddTransaction(transaction);
+            var created = await _mongoDbService.CreateTransactionAsync(transaction);
             
             // Update user stats
-            var user = _dataService.GetUserById(transaction.UserId);
+            var user = await _mongoDbService.GetUserByIdAsync(transaction.UserId);
             if (user != null)
             {
                 if (transaction.Type == "sale" && transaction.Amount > 0)
                 {
-                    user.TotalSaved += transaction.Amount;
-                    user.ItemsSold++;
+                    user.Stats.TotalSaved += transaction.Amount;
+                    user.Stats.ItemsSold++;
                 }
                 else if (transaction.Type == "purchase")
                 {
-                    user.TotalSaved += transaction.Amount;
+                    user.Stats.ItemsBought++;
                 }
-                _dataService.UpdateUser(user);
+                await _mongoDbService.UpdateUserAsync(user.Id, user);
             }
 
-            return CreatedAtAction(nameof(GetUserTransactions), new { userId = transaction.UserId }, transaction);
+            return CreatedAtAction(nameof(GetUserTransactions), new { userId = transaction.UserId }, created);
         }
 
         [HttpGet("user/{userId}/summary")]
-        public ActionResult<object> GetUserSummary(int userId)
+        public async Task<ActionResult<object>> GetUserSummary(string userId)
         {
-            var user = _dataService.GetUserById(userId);
+            var user = await _mongoDbService.GetUserByIdAsync(userId);
             if (user == null)
                 return NotFound();
 
-            var transactions = _dataService.GetTransactions(userId);
-            var recentSales = transactions.Where(t => t.Type == "sale").OrderByDescending(t => t.Date).Take(3);
+            var transactions = await _mongoDbService.GetTransactionsByUserAsync(userId);
+            var recentSales = transactions.Where(t => t.Type == "sale").OrderByDescending(t => t.Date).Take(3).ToList();
 
             return Ok(new
             {
-                totalSaved = user.TotalSaved,
-                itemsSold = user.ItemsSold,
-                itemsBought = user.ItemsBought,
-                co2SavedKg = user.Co2SavedKg,
+                totalSaved = user.Stats.TotalSaved,
+                itemsSold = user.Stats.ItemsSold,
+                itemsBought = user.Stats.ItemsBought,
+                co2SavedKg = user.Stats.Co2SavedKg,
+                reputation = user.Stats.Reputation,
+                isPremium = user.Subscription.IsMamaPro,
                 recentActivity = recentSales
             });
         }

@@ -8,73 +8,73 @@ namespace bloombackend.Controllers
     [Route("api/[controller]")]
     public class HiveController : ControllerBase
     {
-        private readonly DataService _dataService;
+        private readonly MongoDbService _mongoDbService;
 
-        public HiveController()
+        public HiveController(MongoDbService mongoDbService)
         {
-            _dataService = new DataService();
+            _mongoDbService = mongoDbService;
         }
 
         [HttpGet]
-        public ActionResult<List<HiveActivity>> GetActivities()
+        public async Task<ActionResult<List<HiveActivity>>> GetActivities()
         {
-            return Ok(_dataService.GetActivities());
+            var activities = await _mongoDbService.GetActivitiesAsync();
+            return Ok(activities);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<HiveActivity> GetActivity(int id)
+        public async Task<ActionResult<HiveActivity>> GetActivity(string id)
         {
-            var activity = _dataService.GetActivityById(id);
+            var activity = await _mongoDbService.GetActivityByIdAsync(id);
             if (activity == null)
                 return NotFound();
             return Ok(activity);
         }
 
         [HttpPost("{id}/join")]
-        public ActionResult JoinActivity(int id, [FromBody] int userId)
+        public async Task<ActionResult> JoinActivity(string id, [FromBody] JoinActivityRequest request)
         {
-            var activity = _dataService.GetActivityById(id);
+            var activity = await _mongoDbService.GetActivityByIdAsync(id);
             if (activity == null)
                 return NotFound();
 
-            if (activity.ParticipantIds.Contains(userId))
+            if (activity.Participants.Any(p => p.UserId == request.UserId))
                 return BadRequest("User already joined");
 
-            if (activity.Participants >= activity.MaxParticipants)
+            if (activity.MaxParticipants.HasValue && activity.CurrentParticipants >= activity.MaxParticipants)
                 return BadRequest("Activity is full");
 
-            _dataService.JoinActivity(id, userId);
+            await _mongoDbService.JoinActivityAsync(id, request.UserId, request.Username);
             return Ok();
         }
 
         [HttpPost]
-        public ActionResult<HiveActivity> CreateActivity(HiveActivity activity)
+        public async Task<ActionResult<HiveActivity>> CreateActivity(HiveActivity activity)
         {
-            activity.Id = _dataService.GetActivities().Max(a => a.Id) + 1;
-            activity.CreatedAt = DateTime.UtcNow;
-            activity.ParticipantIds = new List<int> { activity.OrganizerId };
-            activity.Participants = 1;
-            
-            // Add to the list (would be in data service)
-            _dataService.GetActivities().Add(activity);
-            
-            return CreatedAtAction(nameof(GetActivity), new { id = activity.Id }, activity);
+            var created = await _mongoDbService.CreateActivityAsync(activity);
+            return CreatedAtAction(nameof(GetActivity), new { id = created.Id }, created);
         }
 
         [HttpGet("stats")]
-        public ActionResult<object> GetStats()
+        public async Task<ActionResult<object>> GetStats()
         {
-            var activities = _dataService.GetActivities();
-            var totalParticipants = activities.Sum(a => a.Participants);
-            var totalSavings = activities.Sum(a => a.Savings);
+            var activities = await _mongoDbService.GetActivitiesAsync();
+            var totalParticipants = activities.Sum(a => a.CurrentParticipants);
+            var totalSavings = activities.Sum(a => a.SustainabilityImpact?.Co2SavedKg ?? 0);
 
             return Ok(new
             {
                 activeActivities = activities.Count,
                 totalParticipants,
-                totalSavings,
+                totalCo2Saved = totalSavings,
                 neighborCount = 247
             });
         }
+    }
+
+    public class JoinActivityRequest
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
     }
 }

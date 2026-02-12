@@ -1,4 +1,29 @@
-const API_BASE_URL = 'http://localhost:5000/api'; // Change this to your backend URL
+const LOCAL_URL = 'http://localhost:5000/api';
+const LIVE_URL = 'https://bloom-k1gb.onrender.com/api';
+
+let API_BASE_URL = LIVE_URL; // Default to live
+
+// Try local first, fallback to live
+async function checkAndSetActiveEndpoint(): Promise<void> {
+  try {
+    // Quick ping to local
+    const response = await fetch(`${LOCAL_URL.replace('/api', '')}/health`, { 
+      method: 'HEAD',
+      signal: AbortSignal.timeout(1000) // 1 second timeout
+    });
+    if (response.ok) {
+      API_BASE_URL = LOCAL_URL;
+      console.log('🔗 Using LOCAL backend:', LOCAL_URL);
+      return;
+    }
+  } catch {
+    // Local not available, use live
+  }
+  console.log('🔗 Using LIVE backend:', LIVE_URL);
+}
+
+// Check on startup
+checkAndSetActiveEndpoint();
 
 class ApiService {
   private async fetchWithErrorHandling(url: string, options?: RequestInit) {
