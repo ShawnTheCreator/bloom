@@ -10,17 +10,21 @@ router.get('/items', async (req, res) => {
     const { category, status = 'active', groupBuy, limit = 20, skip = 0 } = req.query;
     
     const query: any = { status };
-    if (category) query.category = category;
+    if (category && category !== 'All') query.category = category;
     if (groupBuy === 'true') query['groupBuy.enabled'] = true;
+    
+    console.log('Fetching items with query:', query);
     
     const items = await MarketplaceItem.find(query)
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .skip(Number(skip));
     
+    console.log(`Found ${items.length} items`);
     res.json({ success: true, items, count: items.length });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to fetch items' });
+    console.error('Error fetching items:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch items', details: String(error) });
   }
 });
 
