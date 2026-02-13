@@ -1,24 +1,33 @@
 {
   "expo": {
-    "name": "Bloom",
-    "slug": "bloom",
+    "name": "bloom-root",
+    "slug": "bloom-root",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bloom.app",
-      "buildNumber": "1.0.0"
+      "bundleIdentifier": "com.therealshawn.bloomroot"
     },
     "android": {
-      "package": "com.bloom.app",
-      "versionCode": 1
+      "package": "com.therealshawn.bloomroot"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f39bd914-cb44-4fe5-a9db-28ceebeea47b"
+      }
     }
   }
 }
